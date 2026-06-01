@@ -317,7 +317,7 @@ Funcionalidades simuladas:
 
 # 💻 Repositório GitHub
 
-🔗 https://github.com/ZeDio/2TDSA/tree/main/AI%20-%20Disruptive%20Architectures%20IoT%20IOB%20e%20Generative%20IA/Global%20Solution%201
+🔗 https://github.com/ZeDio/Global_Solution_IOT
 
 ---
 
