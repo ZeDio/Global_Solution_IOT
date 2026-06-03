@@ -350,23 +350,25 @@ void buscarDadosTerra(){
   {
     String payload = http.getString();
 
-    DynamicJsonDocument doc(8192);
+    DynamicJsonDocument doc(2048);
+    DeserializationError error = deserializeJson(doc, payload);
 
-    DeserializationError error =
-      deserializeJson(doc, payload);
-
+    Serial.println(payload);
     if (!error)
     {
-      earthTemp =
-        doc["current"]["temperature_2m"] | 0;
+      JsonVariant temperatureNode = doc["current"]["temperature_2m"];
+      JsonVariant earthHumidityNode = doc["current"]["relative_humidity_2m"];
+      JsonVariant earthWindNode = doc["current"]["wind_speed_10m"];
 
-      earthHumidity =
-        doc["current"]["relative_humidity_2m"] | 0;
-
-      earthWind =
-        doc["current"]["wind_speed_10m"] | 0;
+      earthTemp = temperatureNode;
+      earthHumidity = earthHumidityNode;
+      earthWind = earthWindNode;
 
       Serial.println("Dados Terra atualizados.");
+      Serial.print(earthTemp   );
+      Serial.print(earthHumidity   );
+      Serial.print(earthWind   );
+
     }
     else
     {
