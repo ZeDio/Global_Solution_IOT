@@ -1,6 +1,4 @@
-// ======================================================
 // BIBLIOTECAS
-// ======================================================
 #include <WiFi.h>
 #include <WebServer.h>
 #include <HTTPClient.h>
@@ -9,52 +7,36 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-// ======================================================
 // WIFI
-// ======================================================
 const char* WIFI_SSID = "Wokwi-GUEST";
 const char* WIFI_PASSWORD = "";
 
-// ======================================================
 // SERVIDOR WEB
-// ======================================================
 WebServer server(80);
 
-// ======================================================
 // DHT22
-// ======================================================
 #define DHT_PIN     4
 #define DHT_TYPE    DHT22
 DHT dht(DHT_PIN, DHT_TYPE);
 
-// ======================================================
 // MQ2
-// ======================================================
 #define MQ2_PIN 33
 
-// ======================================================
 // LEDS
-// ======================================================
 #define LED_VERDE      25
 #define LED_AMARELO    26
 #define LED_VERMELHO   27
 
-// ======================================================
 // BOTÕES
-// ======================================================
 #define BTN_SENSORES   16
 #define BTN_TERRA      17
 #define BTN_LUA        5
 #define BTN_MARTE      18
 
-// ======================================================
 // LCD
-// ======================================================
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-// ======================================================
 // ENUM TELAS
-// ======================================================
 enum TelaAtual
 {
   TELA_HABITAT = 0,
@@ -66,9 +48,7 @@ enum TelaAtual
 int telaAtual = TELA_HABITAT;
 int ultimaTela = -1;
 
-// ======================================================
 // CONTROLE DE TEMPO
-// ======================================================
 // Debounce dos botões
 unsigned long ultimoClique = 0;
 const unsigned long DEBOUNCE = 250;
@@ -77,88 +57,59 @@ const unsigned long DEBOUNCE = 250;
 unsigned long ultimoUpdateLCD = 0;
 const unsigned long INTERVALO_LCD = 1000;
 
-// ======================================================
-// DADOS DO HABITAT
-// ======================================================
+// DADOS DO HABITAT - Puxa dos sensores
 float temperatura = 0;
 float umidade = 0;
 int gas = 0;
-
 String statusHabitat = "SEGURO ";
 
-// ======================================================
-// DADOS DA TERRA
-// ======================================================
+// DADOS DA TERRA - Puxa da API
 float earthTemp = 0;
 float earthHumidity = 0;
 float earthWind = 0;
-
 String statusTerra = "SEGURO ";
 
-// ======================================================
-// DADOS DA LUA
-// ======================================================
+// DADOS DA LUA - SIMULADO
 float moonTemp = -53;
 float moonRadiation = 8.7;
 float moonGravity = 1.62;
-
 String statusLua = "ATENCAO";
 
-// ======================================================
-// DADOS DE MARTE
-// ======================================================
-float marsTemp = 0;
-float marsPressure = 0;
-float marsWind = 0;
+// DADOS DE MARTE - SIMULADO
+float marsTemp = -50;
+float marsPressure = 400;
+float marsWind = 30;
+String statusMarte = "ATENCAO ";
 
-String statusMarte = "SEGURO ";
-
-// ======================================================
 // PROTÓTIPOS DAS FUNÇÕES
-// ======================================================
-
-// ======================================================
 // Sensores
-// ======================================================
 void lerSensores();
 
-// ======================================================
 // APIs
-// ======================================================
 void buscarDadosTerra();
-void buscarDadosMarte();
 
-// ======================================================
 // Status
-// ======================================================
 void calcularStatusHabitat();
 void calcularStatusTerra();
 void calcularStatusLua();
 void calcularStatusMarte();
 
-// ======================================================
 // Interface
-// ======================================================
 void atualizarLeds(String statusAtual);
 void verificarBotoes();
 void atualizarLCD();
 
-// ======================================================
 // Wifi
-// ======================================================
 void conectarWiFi();
 
-// ======================================================
 // Dashboard
-// ======================================================
 void handleRoot();
 void handleStatus();
+void handleLuaStatus();
 void handleEarthStatus();
 void handleMarsStatus();
 
-// ======================================================
 // LEITURA DOS SENSORES
-// ======================================================
 void lerSensores(){
   temperatura = dht.readTemperature();
   umidade = dht.readHumidity();
@@ -176,24 +127,13 @@ void lerSensores(){
   }
 }
 
-// ======================================================
-// DADOS DE MARTE (SIMULADOS)
-// ======================================================
-void buscarDadosMarte(){
-  marsTemp = random(-80, 5);
-  marsPressure = random(600, 900);
-  marsWind = random(1, 40);
-}
-
-// ======================================================
 // STATUS DO HABITAT
-// ======================================================
 void calcularStatusHabitat(){
-  if (gas > 3000 || temperatura > 40)
+  if (gas > 700 || temperatura > 40)
   {
     statusHabitat = "CRITICO";
   }
-  else if (gas > 1500 || temperatura > 30)
+  else if (gas > 300 || temperatura > 30)
   {
     statusHabitat = "ATENCAO";
   }
@@ -203,9 +143,7 @@ void calcularStatusHabitat(){
   }
 }
 
-// ======================================================
 // STATUS DA TERRA
-// ======================================================
 void calcularStatusTerra(){
   if (earthTemp >= 35)
   {
@@ -221,9 +159,7 @@ void calcularStatusTerra(){
   }
 }
 
-// ======================================================
 // STATUS DA LUA
-// ======================================================
 void calcularStatusLua(){
   if (moonRadiation >= 9)
   {
@@ -239,9 +175,7 @@ void calcularStatusLua(){
   }
 }
 
-// ======================================================
 // STATUS DE MARTE
-// ======================================================
 void calcularStatusMarte(){
   if (marsWind >= 30)
   {
@@ -257,9 +191,7 @@ void calcularStatusMarte(){
   }
 }
 
-// ======================================================
 // CALCULA TODOS OS STATUS
-// ======================================================
 void calcularTodosStatus(){
   calcularStatusHabitat();
   calcularStatusTerra();
@@ -267,9 +199,7 @@ void calcularTodosStatus(){
   calcularStatusMarte();
 }
 
-// ======================================================
 // CONTROLE DOS LEDS
-// ======================================================
 void atualizarLeds(String statusAtual){
   digitalWrite(LED_VERDE, LOW);
   digitalWrite(LED_AMARELO, LOW);
@@ -289,9 +219,7 @@ void atualizarLeds(String statusAtual){
   }
 }
 
-// ======================================================
 // LEITURA DOS BOTÕES COM UM TEMPO EM MILLIS
-// ======================================================
 void verificarBotoes(){
   if (millis() - ultimoClique < DEBOUNCE)
   {
@@ -316,20 +244,12 @@ void verificarBotoes(){
   }
   else if (digitalRead(BTN_MARTE) == LOW)
   {
-    buscarDadosMarte();
     telaAtual = TELA_MARTE;
     ultimoClique = millis();
   }
 }
 
-// ======================================================
 // BUSCA DE DADOS DA TERRA (API OPEN-METEO)
-//
-// Pega:
-// - Temperatura
-// - Umidade
-// - Velocidade do vento
-// ======================================================
 void buscarDadosTerra(){
   if (WiFi.status() != WL_CONNECTED)
   {
@@ -352,8 +272,6 @@ void buscarDadosTerra(){
 
     DynamicJsonDocument doc(2048);
     DeserializationError error = deserializeJson(doc, payload);
-
-    Serial.println(payload);
     if (!error)
     {
       JsonVariant temperatureNode = doc["current"]["temperature_2m"];
@@ -365,10 +283,6 @@ void buscarDadosTerra(){
       earthWind = earthWindNode;
 
       Serial.println("Dados Terra atualizados.");
-      Serial.print(earthTemp   );
-      Serial.print(earthHumidity   );
-      Serial.print(earthWind   );
-
     }
     else
     {
@@ -384,9 +298,7 @@ void buscarDadosTerra(){
   http.end();
 }
 
-// ======================================================
 // CONEXÃO WIFI
-// ======================================================
 void conectarWiFi(){
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -419,9 +331,7 @@ void conectarWiFi(){
   delay(2000);
 }
 
-// ======================================================
 // TELA HABITAT
-// ======================================================
 void mostrarTelaHabitat(){
   atualizarLeds(statusHabitat);
 
@@ -434,9 +344,7 @@ void mostrarTelaHabitat(){
   lcd.print("C");
 }
 
-// ======================================================
 // TELA TERRA
-// ======================================================
 void mostrarTelaTerra(){
   atualizarLeds(statusTerra);
 
@@ -449,9 +357,7 @@ void mostrarTelaTerra(){
   lcd.print("C");
 }
 
-// ======================================================
 // TELA LUA
-// ======================================================
 void mostrarTelaLua(){
   atualizarLeds(statusLua);
 
@@ -464,9 +370,7 @@ void mostrarTelaLua(){
   lcd.print("C");
 }
 
-// ======================================================
 // TELA MARTE
-// ======================================================
 void mostrarTelaMarte(){
   atualizarLeds(statusMarte);
 
@@ -479,9 +383,7 @@ void mostrarTelaMarte(){
   lcd.print("C");
 }
 
-// ======================================================
 // LCD
-// ======================================================
 void atualizarLCD(){
   if (millis() - ultimoUpdateLCD < INTERVALO_LCD)
   {
@@ -516,9 +418,7 @@ void atualizarLCD(){
   }
 }
 
-// ======================================================
 // DASHBOARD WEB
-// ======================================================
 void handleRoot(){
   String html = R"rawliteral(
 
@@ -653,9 +553,7 @@ void handleRoot(){
     server.send(200, "text/html", html);
 }
 
-// ======================================================
 // JSON HABITAT
-// ======================================================
 void handleStatus(){
   DynamicJsonDocument doc(512);
 
@@ -671,9 +569,7 @@ void handleStatus(){
   server.send(200, "application/json", json);
 }
 
-// ======================================================
 // JSON TERRA
-// ======================================================
 void handleEarthStatus(){
   DynamicJsonDocument doc(512);
 
@@ -689,9 +585,23 @@ void handleEarthStatus(){
   server.send(200, "application/json", json);
 }
 
-// ======================================================
+// JSON LUA
+void handleLuaStatus(){
+  DynamicJsonDocument doc(512);
+
+  doc["temperatura"] = moonTemp;
+  doc["Radiação"] = moonRadiation;
+  doc["Gravidade"] = moonGravity;
+  doc["status"] = statusLua;
+
+  String json;
+
+  serializeJson(doc, json);
+
+  server.send(200, "application/json", json);
+}
+
 // JSON MARTE
-// ======================================================
 void handleMarsStatus(){
   DynamicJsonDocument doc(512);
 
@@ -707,9 +617,7 @@ void handleMarsStatus(){
   server.send(200, "application/json", json);
 }
 
-// ======================================================
 // CONFIGURAÇÃO DOS PINOS
-// ======================================================
 void configurarPinos(){
   pinMode(LED_VERDE, OUTPUT);
   pinMode(LED_AMARELO, OUTPUT);
@@ -721,9 +629,7 @@ void configurarPinos(){
   pinMode(BTN_MARTE, INPUT_PULLUP);
 }
 
-// ======================================================
 // CONFIGURAÇÃO DO LCD
-// ======================================================
 void configurarLCD(){
   lcd.init();
   lcd.backlight();
@@ -738,12 +644,11 @@ void configurarLCD(){
   delay(1500);
 }
 
-// ======================================================
 // CONFIGURAÇÃO DO SERVIDOR WEB
-// ======================================================
 void configurarServidor(){
   server.on("/", HTTP_GET, handleRoot);
   server.on("/status-sensores", HTTP_GET, handleStatus);
+  server.on("/status-lua", HTTP_GET, handleLuaStatus);
   server.on("/status-terra", HTTP_GET, handleEarthStatus);
   server.on("/status-marte", HTTP_GET, handleMarsStatus);
 
@@ -751,18 +656,13 @@ void configurarServidor(){
   Serial.println("Servidor Web iniciado.");
 }
 
-// ======================================================
 // DADOS INICIAIS
-// ======================================================
 void carregarDadosIniciais(){
-  buscarDadosMarte();
   buscarDadosTerra();
   calcularTodosStatus();
 }
 
-// ======================================================
 // SETUP
-// ======================================================
 void setup(){
   Serial.begin(115200);
 
@@ -801,9 +701,7 @@ void setup(){
   Serial.println("Sistema iniciado com sucesso.");
 }
 
-// ======================================================
 // LOOP PRINCIPAL
-// ======================================================
 void loop(){
   // LEITURA DOS SENSORES
   lerSensores();

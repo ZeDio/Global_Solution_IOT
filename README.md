@@ -247,6 +247,25 @@ Exemplo:
 
 ---
 
+## Status da Lua
+
+```http
+/status-lua
+```
+
+Exemplo:
+
+```json
+{
+  "temperatura": -53,
+  "radiação": 8.7,
+  "gravidade": 1.62,
+  "status": "ATENÇÃO"
+}
+```
+
+---
+
 ## Status de Marte
 
 ```http
