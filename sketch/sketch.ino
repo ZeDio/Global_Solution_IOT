@@ -15,23 +15,23 @@ const char* WIFI_PASSWORD = "";
 WebServer server(80);
 
 // DHT22
-#define DHT_PIN     4
-#define DHT_TYPE    DHT22
+#define DHT_PIN 4
+#define DHT_TYPE DHT22
 DHT dht(DHT_PIN, DHT_TYPE);
 
 // MQ2
 #define MQ2_PIN 33
 
 // LEDS
-#define LED_VERDE      25
-#define LED_AMARELO    26
-#define LED_VERMELHO   27
+#define LED_VERDE 25
+#define LED_AMARELO 26
+#define LED_VERMELHO 27
 
 // BOTÕES
-#define BTN_SENSORES   16
-#define BTN_TERRA      17
-#define BTN_LUA        5
-#define BTN_MARTE      18
+#define BTN_SENSORES 16
+#define BTN_TERRA 17
+#define BTN_LUA 5
+#define BTN_MARTE 18
 
 // LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -114,8 +114,10 @@ void lerSensores(){
   temperatura = dht.readTemperature();
   umidade = dht.readHumidity();
   gas = analogRead(MQ2_PIN);
+  Serial.println(gas);
 
   // Evita valores inválidos do DHT
+  // isnan ele verifica se tem valor
   if (isnan(temperatura))
   {
     temperatura = 0;
@@ -145,11 +147,11 @@ void calcularStatusHabitat(){
 
 // STATUS DA TERRA
 void calcularStatusTerra(){
-  if (earthTemp >= 35)
+  if (earthTemp >= 40)
   {
     statusTerra = "CRITICO";
   }
-  else if (earthTemp >= 28)
+  else if (earthTemp >= 30)
   {
     statusTerra = "ATENCAO";
   }
@@ -479,6 +481,11 @@ void handleRoot(){
   <p>Umidade: )rawliteral";
 
     html += String(umidade, 1);
+
+    html += R"rawliteral( %</p>
+  <p>Umidade: )rawliteral";
+
+    html += String(gas, 1);
 
     html += R"rawliteral( %</p>
   </div>
