@@ -114,7 +114,6 @@ void lerSensores(){
   temperatura = dht.readTemperature();
   umidade = dht.readHumidity();
   gas = analogRead(MQ2_PIN);
-  Serial.println(gas);
 
   // Evita valores inválidos do DHT
   // isnan ele verifica se tem valor
